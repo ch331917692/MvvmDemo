@@ -1,19 +1,16 @@
 package com.mvvm.view.activity;
 
-import android.app.Activity;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
 import com.mvvm.R;
-import com.mvvm.dagger.AppComponet;
 import com.mvvm.databinding.ActivityRegisterBinding;
 import com.mvvm.eventbus.BaseEvent;
-import com.mvvm.eventbus.LoginEvent;
 import com.mvvm.eventbus.RegisterEvent;
 import com.mvvm.utils.Constants;
+import com.mvvm.view.dagger.DaggerUserComponent;
 import com.mvvm.viewmodel.UserInfoViewModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,8 +36,15 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     @Override
     public void initView() {
         registerBinding = DataBindingUtil.setContentView(this,R.layout.activity_register);
-        activityComponet.inject(this);
-        userInfoViewModel.setContext(this);
+    }
+
+    @Override
+    public void initComponent() {
+        DaggerUserComponent.builder()
+                .appComponet(getAppComponent())
+                .activityComponet(getActivityComponet())
+                .build()
+                .inject(this);
     }
 
     @Override
@@ -48,10 +52,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
     }
 
-    @Override
-    public void initAppComponet(AppComponet appComponet) {
-
-    }
 
     @Override
     public void setListener() {
@@ -72,7 +72,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     public void onEventMainThread(BaseEvent event) {
         if (event instanceof RegisterEvent) {
             Toast.makeText(this,"注册成功",Toast.LENGTH_LONG).show();
-            userInfoViewModel.sharedPreferencesUtils.putStringValues(Constants.SP_KEY_LOGIN_USERNAME,
+            userInfoViewModel.SPUtils.putStringValues(Constants.SP_KEY_LOGIN_USERNAME,
                     registerBinding.registerUsernameEdit.getText().toString().trim());
             isRegisterSuccess = true;
             finish();

@@ -1,11 +1,8 @@
 package com.mvvm.view.dagger;
 
-import android.content.Context;
+import android.app.Activity;
 
-
-import com.mvvm.dagger.AppApplication;
-import com.mvvm.model.UserModel;
-import com.mvvm.viewmodel.UserInfoViewModel;
+import com.mvvm.utils.IntentUtils;
 
 import dagger.Module;
 import dagger.Provides;
@@ -18,17 +15,19 @@ import dagger.Provides;
 @Module
 public class ActivityModule {
 
-//    @Provides
-//    public Context provideContext(){
-//        return AppApplication.getsInstance().getAppComponent().context();
-//    }
-
-    /**
-     * 提供UserInfoViewModel
-     * @return UserInfoViewModel
-     */
-    @Provides
-    public UserInfoViewModel provideUserInfoViewModel(){
-        return new UserInfoViewModel(new UserModel());
+    private Activity activity;
+    public ActivityModule(Activity activity){
+        this.activity = activity;
     }
+
+    @Provides
+    public Activity provideActivity(){
+        return activity;
+    }
+
+    @Provides
+    public IntentUtils providesActivityIntentUtils(Activity activity){
+        return new IntentUtils(activity);
+    }
+
 }

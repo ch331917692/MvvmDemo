@@ -1,8 +1,7 @@
 package com.mvvm.api;
 
 import com.mvvm.api.interfaces.IUserApi;
-
-import javax.inject.Singleton;
+import com.mvvm.dagger.PerApp;
 
 import dagger.Module;
 import dagger.Provides;
@@ -32,7 +31,7 @@ public class ApiRequestModule {
 //        return retrofit.create(serviceClass);
 //    }
 
-    @Singleton
+    @PerApp
     @Provides
     public IUserApi provideApiRequest(Retrofit retrofit) {
         return retrofit.create(IUserApi.class);

@@ -11,11 +11,19 @@ import android.os.Bundle;
  * @Description 页面跳转公共类
  * @author 汪乐骏
  */
-public class ActivityIntentUtils {
+public class IntentUtils {
 	private Context context;
-	public ActivityIntentUtils(Context context) {
+	public IntentUtils(Context context) {
 		// TODO Auto-generated constructor stub
 		this.context = context;
+	}
+
+	private Intent getIntent(Context context , Class<?> dest){
+		Intent intent = new Intent(context,dest);
+		if(!(context instanceof Activity)){
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		return intent;
 	}
 
 	/**
@@ -27,7 +35,7 @@ public class ActivityIntentUtils {
 	 * @throws
 	 */
 	public void turnToNextActivity(Class<?> dest) {
-		Intent intent = new Intent(context, dest);
+		Intent intent = getIntent(context, dest);
 		context.startActivity(intent);
 		((Activity)context).finish();
 	}
@@ -41,7 +49,7 @@ public class ActivityIntentUtils {
 	 * @throws
 	 */
 	public  void turnToActivity(Class<?> dest) {
-		Intent intent = new Intent(context, dest);
+		Intent intent = getIntent(context, dest);
 		context.startActivity(intent);
 	}
 
@@ -56,7 +64,7 @@ public class ActivityIntentUtils {
 	 */
 	public  void turnToActivity(Class<?> dest, Bundle bundle) {
 		try {
-			Intent intent = new Intent(context, dest);
+			Intent intent = getIntent(context, dest);
 			intent.putExtras(bundle);
 			context.startActivity(intent);
 		} catch (Exception e) {
@@ -74,7 +82,7 @@ public class ActivityIntentUtils {
 	 */
 	public  void turnToActivityForReuslt(Activity activity,Class<?> dest,Bundle bundle,int requestCode) {
 		try {
-			Intent intent = new Intent(context, dest);
+			Intent intent = getIntent(context, dest);
 			intent.putExtras(bundle);
 			activity.startActivityForResult(intent,requestCode);
 		} catch (Exception e) {
@@ -93,7 +101,7 @@ public class ActivityIntentUtils {
 	 */
 	public void turnToNextActivity(Class<?> dest, Bundle bundle) {
 		try {
-			Intent intent = new Intent(context, dest);
+			Intent intent = getIntent(context, dest);
 			intent.putExtras(bundle);
 			context.startActivity(intent);
 			((Activity)context).finish();

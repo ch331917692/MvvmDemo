@@ -17,7 +17,8 @@ public abstract class BaseActivity
 //        <V extends ViewDataBinding>
         extends AppCompatActivity {
 
-    public ActivityComponet activityComponet;
+    private ActivityComponet activityComponet;
+
 //    private V dataBinding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,15 +29,22 @@ public abstract class BaseActivity
 
 
     private void init(){
-        initAppComponet(AppApplication.getsInstance().getAppComponent());
-        activityComponet = DaggerActivityComponet.builder().activityModule(new ActivityModule()).build();
+        activityComponet = DaggerActivityComponet.builder().activityModule(new ActivityModule(this)).build();
 
 //        dataBinding = DataBindingUtil.setContentView(this,inflaterContentView());
+        initComponent();
         initView();
         initData();
         setListener();
     }
 
+    public AppComponet getAppComponent(){
+        return AppApplication.getsInstance().getAppComponent();
+    }
+
+    public ActivityComponet getActivityComponet(){
+        return activityComponet;
+    }
 
 //    protected abstract int inflaterContentView();
 
@@ -50,10 +58,8 @@ public abstract class BaseActivity
      */
     public abstract void initData();
 
-    /**
-     * 初始全局Componet
-     */
-    public abstract void initAppComponet(AppComponet appComponet);
+
+    public abstract void initComponent();
 
     /**
      * 设置监听
