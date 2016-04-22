@@ -3,6 +3,7 @@ package com.mvvm.view.activity;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,6 +15,9 @@ import com.mvvm.eventbus.BaseEvent;
 import com.mvvm.eventbus.LoginEvent;
 import com.mvvm.eventbus.RegisterEvent;
 import com.mvvm.utils.Constants;
+import com.mvvm.view.dagger.component.DaggerUserInfoComponent;
+import com.mvvm.view.dagger.component.UserInfoComponent;
+import com.mvvm.view.dagger.module.UserInfoModule;
 import com.mvvm.viewmodel.UserInfoViewModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -46,21 +50,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     public void initView() {
 //        loginBinding = getDataBinding();
         loginBinding = DataBindingUtil.setContentView(this,R.layout.activity_login);
-        activityComponet.inject(this);
-        userInfoViewModel.setContext(this);
-//        loginBinding.setUserInfoViewModel(userInfoViewModel);
-        loginBinding.loginUsernameEdit.setText(userInfoViewModel.sharedPreferencesUtils.getStringValues(Constants.SP_KEY_LOGIN_USERNAME));
+
+        loginBinding.setUserInfo(userInfoViewModel.getUserInfo());
     }
 
-    @Override
-    public void initData() {
-
-    }
-
-    @Override
-    public void initAppComponet(AppComponet appComponet) {
-
-    }
 
     @Override
     public void setListener() {
@@ -69,15 +62,24 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     }
 
     @Override
+    public void initComponet() {
+        DaggerUserInfoComponent.builder().appComponet(getAppComponent()).
+                activityComponet(getActivityComponet()).build().inject(this);
+    }
+
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()){
+            //登录
             case R.id.login_sign_in_btn:
                 userInfoViewModel.requestLogin(loginBinding.loginUsernameEdit.getText().toString().trim(),
                         loginBinding.loginPasswordEdit.getText().toString().trim());
                 break;
 
+            //注册.
             case R.id.login_register_btn:
-                userInfoViewModel.activityIntentUtils.turnToActivity(RegisterActivity.class);
+                userInfoViewModel.intentUtils.turnToActivity(RegisterActivity.class);
                 break;
         }
     }
@@ -88,17 +90,15 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     public void onEventMainThread(BaseEvent event) {
         if (event instanceof LoginEvent) {
             Toast.makeText(this,"loginSuccess",Toast.LENGTH_LONG).show();
-            userInfoViewModel.activityIntentUtils.turnToNextActivity(MainActivity.class);
+            userInfoViewModel.intentUtils.turnToNextActivity(MainActivity.class);
             //保存登录状态
-            userInfoViewModel.sharedPreferencesUtils.putBooleanValues(Constants.SP_KEY_LOGIN_STATUS,true);
-            userInfoViewModel.sharedPreferencesUtils.putStringValues(Constants.SP_KEY_LOGIN_OBJECT_ID, ((LoginEvent) event).getUserEntity().getObjectId());
-            userInfoViewModel.sharedPreferencesUtils.putStringValues(Constants.SP_KEY_LOGIN_USERNAME, ((LoginEvent) event).getUserEntity().getUsername());
+            userInfoViewModel.updatgeLoginStatus(((LoginEvent) event).getUserEntity().getObjectId(), true);
         }
 
         else if (event instanceof RegisterEvent) {
             //注册成功loginUsernameEdit显示用户名
             if(!"".equals(((RegisterEvent) event).getUsername())){
-                loginBinding.loginUsernameEdit.setText(userInfoViewModel.sharedPreferencesUtils.getStringValues(Constants.SP_KEY_LOGIN_USERNAME));
+                loginBinding.setUserInfo(userInfoViewModel.updateUsername(((RegisterEvent) event).getUsername()));
             }
         }
     }
